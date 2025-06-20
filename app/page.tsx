@@ -1,15 +1,6 @@
-"use client"
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import jwt from "jsonwebtoken"
-
-interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-  department?: string
-}
 
 interface DecodedToken {
   userId: string

@@ -1,58 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Loader2, Users, FileText, BarChart3, Settings } from "lucide-react"
-
-interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-  department?: string
-}
+import { Loader2, Users, FileText, BarChart3, CheckCircle } from "lucide-react"
 
 export default function ManagerDashboard() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
-
-  useEffect(() => {
-    fetchUserProfile()
-  }, [])
-
-  const fetchUserProfile = async () => {
-    try {
-      const response = await fetch("/api/auth/profile")
-      if (response.ok) {
-        const userData = await response.json()
-        setUser(userData.user)
-      } else {
-        router.push("/login")
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error)
-      router.push("/login")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" })
-      router.push("/login")
-      router.refresh()
-    } catch (error) {
-      console.error("Logout error:", error)
-    }
-  }
-
-  const navigateTo = (path: string) => {
-    router.push(path)
-  }
+  const { user, loading, logout } = useAuth()
 
   if (loading) {
     return (
@@ -63,7 +17,7 @@ export default function ManagerDashboard() {
   }
 
   if (!user) {
-    return null
+    return null // Will redirect to login via useAuth hook
   }
 
   return (
@@ -80,7 +34,7 @@ export default function ManagerDashboard() {
                 <p className="text-sm font-medium text-gray-900">{user.name}</p>
                 <p className="text-xs text-gray-500">{user.role}</p>
               </div>
-              <Button variant="outline" onClick={handleLogout}>
+              <Button variant="outline" onClick={logout}>
                 Logout
               </Button>
             </div>
@@ -93,52 +47,56 @@ export default function ManagerDashboard() {
           <h2 className="text-lg font-medium text-gray-900 mb-2">Welcome back, {user.name}!</h2>
           <p className="text-gray-600">
             {user.department && `${user.department} • `}
-            {user.role}
+            Team Lead Manager
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Team Management */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Team Members */}
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Team Management</CardTitle>
+              <CardTitle className="text-sm font-medium">Team Members</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <CardDescription>Manage your team members and their performance evaluations.</CardDescription>
+              <div className="text-2xl font-bold">12</div>
+              <CardDescription>Direct reports</CardDescription>
             </CardContent>
           </Card>
 
-          {/* KPI Management */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigateTo("/kpis")}>
+          {/* Pending Appraisals */}
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">KPI Management</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <CardDescription>Set and track Key Performance Indicators for your team.</CardDescription>
-            </CardContent>
-          </Card>
-
-          {/* Appraisals */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigateTo("/appraisals")}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Team Appraisals</CardTitle>
+              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <CardDescription>Review and approve team member appraisals.</CardDescription>
+              <div className="text-2xl font-bold">5</div>
+              <CardDescription>Awaiting your approval</CardDescription>
             </CardContent>
           </Card>
 
-          {/* Reports */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          {/* Team Performance */}
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Team Reports</CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Team Performance</CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <CardDescription>Generate performance reports for your team.</CardDescription>
+              <div className="text-2xl font-bold">88%</div>
+              <CardDescription>Average team score</CardDescription>
+            </CardContent>
+          </Card>
+
+          {/* Completed Reviews */}
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Completed</CardTitle>
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">15</div>
+              <CardDescription>Reviews this quarter</CardDescription>
             </CardContent>
           </Card>
         </div>
@@ -147,12 +105,46 @@ export default function ManagerDashboard() {
         <div className="mt-8">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
           <div className="flex flex-wrap gap-3">
-            <Button onClick={() => navigateTo("/kpis")}>Manage KPIs</Button>
-            <Button variant="outline" onClick={() => navigateTo("/appraisals")}>
-              Review Appraisals
-            </Button>
-            <Button variant="outline">Team Reports</Button>
+            <Button>Review Pending Appraisals</Button>
+            <Button variant="outline">Manage Team KPIs</Button>
+            <Button variant="outline">View Team Reports</Button>
+            <Button variant="outline">Schedule Reviews</Button>
           </div>
+        </div>
+
+        {/* Pending Approvals */}
+        <div className="mt-8">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Pending Approvals</h3>
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium">John Smith - Performance Review</p>
+                    <p className="text-xs text-gray-500">Submitted 2 days ago</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button size="sm" variant="outline">
+                      View
+                    </Button>
+                    <Button size="sm">Approve</Button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium">Sarah Johnson - KPI Update</p>
+                    <p className="text-xs text-gray-500">Submitted 1 day ago</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button size="sm" variant="outline">
+                      View
+                    </Button>
+                    <Button size="sm">Approve</Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
