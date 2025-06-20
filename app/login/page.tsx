@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -89,7 +90,7 @@ export default function LoginPage() {
               Sign In
             </Button>
           </form>
-          <div className="mt-4 text-sm text-gray-600">
+          <div className="mt-4 text-center text-sm text-gray-600">
             <p>
               <strong>Demo Accounts:</strong>
             </p>
@@ -97,6 +98,13 @@ export default function LoginPage() {
             <p>HOD: hod@company.com / password123</p>
             <p>Team Lead: manager@company.com / password123</p>
             <p>Employee: employee@company.com / password123</p>
+
+            <div className="mt-4 pt-4 border-t">
+              Don't have an account?{" "}
+              <Link href="/signup" className="text-blue-600 hover:underline">
+                Sign up here
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>

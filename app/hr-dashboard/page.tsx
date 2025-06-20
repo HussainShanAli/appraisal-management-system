@@ -182,6 +182,14 @@ export default function HRDashboard() {
                   </CardHeader>
                 </Card>
               </Link>
+              <Link href="/appraisals">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <CardTitle className="text-base">All Appraisals</CardTitle>
+                    <CardDescription>View and print completed appraisals</CardDescription>
+                  </CardHeader>
+                </Card>
+              </Link>
             </div>
           </TabsContent>
         </Tabs>
