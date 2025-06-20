@@ -1,199 +1,142 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useAuth } from "@/hooks/use-auth"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, FileText, Target, TrendingUp, Plus } from "lucide-react"
-import Link from "next/link"
-import { DashboardLayout } from "@/components/dashboard-layout"
+import { Loader2, Users, FileText, BarChart3, TrendingUp, Calendar, Settings } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function HRDashboard() {
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalAppraisals: 0,
-    pendingAppraisals: 0,
-    completedAppraisals: 0,
-    totalKPIs: 0,
-    totalTemplates: 0,
-  })
-  const [recentAppraisals, setRecentAppraisals] = useState([])
+  const { user, loading, logout } = useAuth()
+  const router = useRouter()
 
-  useEffect(() => {
-    fetchDashboardData()
-  }, [])
-
-  const fetchDashboardData = async () => {
-    try {
-      const response = await fetch("/api/dashboard/hr")
-      if (response.ok) {
-        const data = await response.json()
-        setStats(data.stats)
-        setRecentAppraisals(data.recentAppraisals)
-      }
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error)
-    }
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Completed":
-        return "bg-green-100 text-green-800"
-      case "Pending_HR_Approval":
-        return "bg-yellow-100 text-yellow-800"
-      case "Pending_HOD_Approval":
-        return "bg-blue-100 text-blue-800"
-      case "Rejected":
-        return "bg-red-100 text-red-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
+  if (!user || user.role !== "HRAdmin") {
+    router.push("/login")
+    return null
   }
 
   return (
-    <DashboardLayout title="HR Dashboard" role="HRAdmin">
-      <div className="space-y-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">HR Dashboard</h1>
+              <p className="text-sm text-gray-600">Human Resources Management</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                <p className="text-xs text-gray-500">{user.role}</p>
+              </div>
+              <Button variant="outline" onClick={logout}>
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-gray-900 mb-2">Welcome to HR Dashboard</h2>
+          <p className="text-gray-600">Manage your organization's performance and appraisal system</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Employee Management */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <CardTitle className="text-sm font-medium">Employee Management</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalUsers}</div>
+              <div className="text-2xl font-bold">156</div>
+              <CardDescription>Total active employees</CardDescription>
             </CardContent>
           </Card>
-          <Card>
+
+          {/* Appraisals Overview */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/appraisals")}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Appraisals</CardTitle>
+              <CardTitle className="text-sm font-medium">Appraisals</CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalAppraisals}</div>
+              <div className="text-2xl font-bold">42</div>
+              <CardDescription>Pending appraisals</CardDescription>
             </CardContent>
           </Card>
-          <Card>
+
+          {/* KPI Management */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push("/kpis")}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+              <CardTitle className="text-sm font-medium">KPI Management</CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">28</div>
+              <CardDescription>Active KPIs</CardDescription>
+            </CardContent>
+          </Card>
+
+          {/* Performance Trends */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Performance Trends</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.pendingAppraisals}</div>
+              <div className="text-2xl font-bold">+12%</div>
+              <CardDescription>Average performance increase</CardDescription>
             </CardContent>
           </Card>
-          <Card>
+
+          {/* Upcoming Reviews */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">KPIs & Templates</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Upcoming Reviews</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalKPIs + stats.totalTemplates}</div>
+              <div className="text-2xl font-bold">15</div>
+              <CardDescription>Reviews due this month</CardDescription>
+            </CardContent>
+          </Card>
+
+          {/* System Settings */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">System Settings</CardTitle>
+              <Settings className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <CardDescription>Configure system preferences and templates</CardDescription>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Content */}
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="appraisals">Appraisals</TabsTrigger>
-            <TabsTrigger value="management">Management</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Appraisals</CardTitle>
-                <CardDescription>Latest appraisal activities requiring attention</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentAppraisals.map((appraisal: any) => (
-                    <div key={appraisal._id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">{appraisal.employee?.name}</p>
-                        <p className="text-sm text-muted-foreground">{appraisal.template?.name}</p>
-                        <p className="text-xs text-muted-foreground">{appraisal.reviewPeriod}</p>
-                      </div>
-                      <Badge className={getStatusColor(appraisal.status)}>{appraisal.status.replace("_", " ")}</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="appraisals" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">Appraisal Management</h3>
-              <Link href="/appraisals/create">
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Appraisal
-                </Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Link href="/appraisals">
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <CardTitle className="text-base">View All Appraisals</CardTitle>
-                    <CardDescription>Manage and track all performance appraisals</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-              <Link href="/reports">
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <CardTitle className="text-base">Generate Reports</CardTitle>
-                    <CardDescription>Create performance and completion reports</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="management" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Link href="/users">
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <CardTitle className="text-base">User Management</CardTitle>
-                    <CardDescription>Manage users, roles, and departments</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-              <Link href="/kpis">
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <CardTitle className="text-base">KPI Library</CardTitle>
-                    <CardDescription>Manage Key Performance Indicators</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-              <Link href="/templates">
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <CardTitle className="text-base">Appraisal Templates</CardTitle>
-                    <CardDescription>Create and manage appraisal templates</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-              <Link href="/appraisals">
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <CardTitle className="text-base">All Appraisals</CardTitle>
-                    <CardDescription>View and print completed appraisals</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </DashboardLayout>
+        {/* Quick Actions */}
+        <div className="mt-8">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={() => router.push("/appraisals")}>View All Appraisals</Button>
+            <Button variant="outline" onClick={() => router.push("/kpis")}>
+              Manage KPIs
+            </Button>
+            <Button variant="outline">Generate Reports</Button>
+            <Button variant="outline">Export Data</Button>
+          </div>
+        </div>
+      </main>
+    </div>
   )
 }
