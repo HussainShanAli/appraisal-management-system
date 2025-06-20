@@ -27,17 +27,17 @@ export async function POST(request: NextRequest) {
 
     // Generate JWT token
     const token = generateToken({
-      userId: user._id,
+      userId: user._id.toString(),
       email: user.email,
       role: user.role,
       name: user.name,
     })
 
-    // Create response with token as httpOnly cookie
+    // Create response with user data
     const response = NextResponse.json({
       message: "Login successful",
       user: {
-        id: user._id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
         role: user.role,
@@ -45,11 +45,13 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Set cookie with proper settings
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax", // Changed from "strict" to "lax"
       maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: "/", // Explicitly set path
     })
 
     return response
