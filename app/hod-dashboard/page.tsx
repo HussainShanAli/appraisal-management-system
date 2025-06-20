@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Loader2, Users, FileText, TrendingUp } from "lucide-react"
+import { Loader2, Users, FileText, BarChart3, Settings, Building } from "lucide-react"
 
 interface User {
   id: string
@@ -44,9 +44,14 @@ export default function HODDashboard() {
     try {
       await fetch("/api/auth/logout", { method: "POST" })
       router.push("/login")
+      router.refresh()
     } catch (error) {
       console.error("Logout error:", error)
     }
+  }
+
+  const navigateTo = (path: string) => {
+    router.push(path)
   }
 
   if (loading) {
@@ -68,7 +73,7 @@ export default function HODDashboard() {
           <div className="flex justify-between items-center py-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">HOD Dashboard</h1>
-              <p className="text-sm text-gray-600">Head of Department - Performance Management</p>
+              <p className="text-sm text-gray-600">Head of Department - Performance & Appraisal System</p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
@@ -85,49 +90,91 @@ export default function HODDashboard() {
 
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-2">Welcome, {user.name}!</h2>
-          <p className="text-gray-600">Department Head Dashboard - {user.department}</p>
+          <h2 className="text-lg font-medium text-gray-900 mb-2">Welcome back, {user.name}!</h2>
+          <p className="text-gray-600">
+            {user.department && `${user.department} • `}
+            {user.role}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
+          {/* Department Overview */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Department Overview</CardTitle>
+              <Building className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <CardDescription>View comprehensive department performance metrics and analytics.</CardDescription>
+            </CardContent>
+          </Card>
+
+          {/* Staff Management */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Staff Management</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <CardDescription>Manage your department's performance and team members.</CardDescription>
+              <CardDescription>Manage all department staff and their performance evaluations.</CardDescription>
             </CardContent>
           </Card>
 
-          <Card>
+          {/* KPI Management */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigateTo("/kpis")}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Appraisal Reviews</CardTitle>
+              <CardTitle className="text-sm font-medium">Department KPIs</CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <CardDescription>Set and monitor Key Performance Indicators for the entire department.</CardDescription>
+            </CardContent>
+          </Card>
+
+          {/* Appraisals */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigateTo("/appraisals")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Department Appraisals</CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <CardDescription>Review and approve performance appraisals for your team.</CardDescription>
+              <CardDescription>Review and approve all department appraisals.</CardDescription>
             </CardContent>
           </Card>
 
-          <Card>
+          {/* Reports & Analytics */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Performance Analytics</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Department Reports</CardTitle>
+              <Settings className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <CardDescription>View department performance metrics and trends.</CardDescription>
+              <CardDescription>Generate comprehensive department performance reports.</CardDescription>
+            </CardContent>
+          </Card>
+
+          {/* Strategic Planning */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Strategic Planning</CardTitle>
+              <Settings className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <CardDescription>Plan and set strategic goals for department growth.</CardDescription>
             </CardContent>
           </Card>
         </div>
 
+        {/* Quick Actions */}
         <div className="mt-8">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
           <div className="flex flex-wrap gap-3">
-            <Button onClick={() => router.push("/appraisals")}>Review Appraisals</Button>
-            <Button variant="outline" onClick={() => router.push("/kpis")}>
-              Manage KPIs
+            <Button onClick={() => navigateTo("/kpis")}>Department KPIs</Button>
+            <Button variant="outline" onClick={() => navigateTo("/appraisals")}>
+              Review Appraisals
             </Button>
+            <Button variant="outline">Department Reports</Button>
+            <Button variant="outline">Staff Management</Button>
           </div>
         </div>
       </main>
