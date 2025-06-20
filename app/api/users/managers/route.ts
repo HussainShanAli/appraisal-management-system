@@ -6,15 +6,17 @@ export async function GET(request: NextRequest) {
   try {
     await dbConnect()
 
-    // Fetch users who can be managers (TeamLead, HOD, HRAdmin)
+    // Find users who can be managers (TeamLead, HOD, HRAdmin)
     const managers = await User.find({
       role: { $in: ["TeamLead", "HOD", "HRAdmin"] },
       isActive: true,
-    }).select("name email role department")
+    })
+      .select("name email role department")
+      .sort({ name: 1 })
 
     return NextResponse.json(managers)
   } catch (error) {
-    console.error("Error fetching managers:", error)
+    console.error("Managers fetch error:", error)
     return NextResponse.json({ message: "Internal server error" }, { status: 500 })
   }
 }

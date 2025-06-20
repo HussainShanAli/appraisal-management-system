@@ -36,9 +36,8 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (response.ok) {
-        // Token is set as httpOnly cookie by the API
-        router.push("/")
-        router.refresh()
+        // Force a hard refresh to ensure middleware runs
+        window.location.href = "/"
       } else {
         setError(data.message || "Login failed")
       }

@@ -22,5 +22,8 @@ export function getTokenFromRequest(request: NextRequest) {
 
 export function getUserFromToken(token: string) {
   const decoded = verifyToken(token)
+  if (!decoded || typeof decoded !== "object") {
+    return null
+  }
   return decoded as any
 }
