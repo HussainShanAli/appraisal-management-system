@@ -12,40 +12,82 @@ const AppraisalSchema = new mongoose.Schema(
       ref: "AppraisalTemplate",
       required: true,
     },
+    formType: {
+      type: String,
+      required: true,
+      enum: ["CSR", "TeamLead"],
+    },
     reviewPeriod: {
       type: String,
       required: true,
     },
+    dateOfEvaluation: {
+      type: Date,
+      default: Date.now,
+    },
     status: {
       type: String,
       required: true,
-      enum: ["Draft", "Pending_HOD_Approval", "Pending_HR_Approval", "Completed", "Rejected"],
+      enum: [
+        "Draft",
+        "Pending_TL_Approval",
+        "Pending_HOD_Approval",
+        "Pending_CEO_Approval",
+        "Pending_HR_Approval",
+        "Completed",
+        "Rejected",
+      ],
       default: "Draft",
     },
-    scores: [
+    // Performance Areas Scores
+    performanceScores: [
       {
-        kpi: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "KPI",
-          required: true,
-        },
+        area: String,
         rating: {
           type: Number,
           min: 1,
           max: 5,
         },
-        managerComment: String,
-        employeeComment: String,
+        comments: String,
       },
     ],
-    strengthsComment: String,
-    improvementsComment: String,
-    finalComments: String,
+    // KPI Scores
+    kpiScores: [
+      {
+        kpi: String,
+        description: String,
+        rating: {
+          type: Number,
+          min: 1,
+          max: 5,
+        },
+        comments: String,
+      },
+    ],
+    // Overall Assessment
+    strengths: String,
+    areasForImprovement: String,
+    trainingSupport: String,
+
+    // Calculated scores
+    totalPerformanceScore: Number,
+    totalKpiScore: Number,
+    averageScore: Number,
+    overallRating: String,
+
+    // Comments from approvers
+    tlComments: String,
+    hodComments: String,
+    ceoComments: String,
+    hrComments: String,
+
     submittedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
     submittedDate: Date,
+
+    // Approval Chain based on form type
     approvalChain: [
       {
         approver: {
@@ -56,7 +98,7 @@ const AppraisalSchema = new mongoose.Schema(
         role: {
           type: String,
           required: true,
-          enum: ["HOD", "HRAdmin"],
+          enum: ["TeamLead", "HOD", "CEO", "HRAdmin"],
         },
         status: {
           type: String,

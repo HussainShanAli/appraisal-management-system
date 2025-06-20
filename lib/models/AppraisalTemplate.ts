@@ -12,20 +12,35 @@ const AppraisalTemplateSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    kpis: [
-      {
-        kpi: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "KPI",
-          required: true,
-        },
-      },
-    ],
-    forRole: {
+    formType: {
       type: String,
       required: true,
-      enum: ["Employee", "TeamLead"],
+      enum: ["CSR", "TeamLead"],
     },
+    performanceAreas: [
+      {
+        category: String,
+        items: [
+          {
+            title: String,
+            description: String,
+          },
+        ],
+      },
+    ],
+    kpis: [
+      {
+        title: String,
+        description: String,
+      },
+    ],
+    approvalWorkflow: [
+      {
+        step: Number,
+        role: String,
+        required: Boolean,
+      },
+    ],
   },
   {
     timestamps: true,

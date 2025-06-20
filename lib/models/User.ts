@@ -8,6 +8,12 @@ const UserSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    employeeId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
@@ -23,15 +29,27 @@ const UserSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["Employee", "TeamLead", "HOD", "HRAdmin"],
+      enum: ["Employee", "TeamLead", "HOD", "CEO", "HRAdmin"],
+    },
+    position: {
+      type: String,
+      required: true,
+      trim: true,
     },
     department: {
       type: String,
       required: function () {
-        return this.role !== "HRAdmin"
+        return this.role !== "HRAdmin" && this.role !== "CEO"
       },
     },
-    manager: {
+    supervisor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: function () {
+        return this.role === "Employee" || this.role === "TeamLead"
+      },
+    },
+    hod: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: function () {

@@ -1,48 +1,43 @@
+"use client"
+
+import { useEffect } from "react"
 import { redirect } from "next/navigation"
-import { cookies } from "next/headers"
-import jwt from "jsonwebtoken"
 
-interface DecodedToken {
-  userId: string
-  email: string
-  role: string
-  name: string
-}
+export default function Page() {
+  useEffect(() => {
+    // Check if user is authenticated (e.g., check for a token in local storage)
+    const isAuthenticated = localStorage.getItem("token")
 
-export default async function HomePage() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get("token")?.value
+    if (!isAuthenticated) {
+      redirect("/login")
+    }
 
-  console.log("Home page - Token exists:", !!token)
+    // Simulate fetching user role from an API or local storage
+    // Replace this with your actual authentication and authorization logic
+    const user = {
+      role: localStorage.getItem("role") || "Employee", // Default role
+    }
 
-  if (!token) {
-    console.log("No token in home page, redirecting to login")
-    redirect("/login")
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret-key") as DecodedToken
-    console.log("Home page - Token verified for user:", decoded.email, "Role:", decoded.role)
-
-    // Redirect based on user role
-    switch (decoded.role) {
+    // Role-based dashboard routing
+    switch (user.role) {
       case "HRAdmin":
         redirect("/hr-dashboard")
       case "HOD":
         redirect("/hod-dashboard")
       case "TeamLead":
         redirect("/manager-dashboard")
+      case "CEO":
+        redirect("/ceo-dashboard")
       case "Employee":
         redirect("/employee-dashboard")
       default:
-        console.log("Unknown role:", decoded.role, "redirecting to login")
         redirect("/login")
     }
-  } catch (error) {
-    console.log("Token verification failed in home page:", error)
-    redirect("/login")
-  }
+  }, [])
 
-  // This should never be reached due to redirects above
-  return null
+  return (
+    <div>
+      <h1>Loading...</h1>
+    </div>
+  )
 }
